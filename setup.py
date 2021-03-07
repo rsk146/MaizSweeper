@@ -29,48 +29,69 @@ dim = 10
 height, width, margin = (800/dim-4, 800/dim -4, 4)
 font = pygame.font.SysFont('arial', 40) #this line takes so longfor some reason
 
-def display(grid, dim, copyGrid):
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit(0)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            pos = pygame.mouse.get_pos()
-            i = pos[0]//(width +margin)
-            j = pos[1]//(height+margin)
-            #((i,j))
-            if 0<= i < dim and 0<=j < dim:
-                copyGrid[j][i] = 1
+
+def manualGame(grid, dim, copyGrid):
+    
     #print(copyGrid)
     for row in range(dim):
         for col in range(dim):
             color = WHITE
-            if copyGrid[row][col] == 1:
-                if grid[row][col] == -1:
-                    color = BLACK
-                elif grid[row][col] ==0:
-                    color = L_BLUE
-                elif grid[row][col] ==1:
-                    color = BLUE
-                elif grid[row][col] ==2:
-                    color = RED
-                elif grid[row][col] ==3:
-                    color = GREEN
-                elif grid[row][col] ==4:
-                    color = L_GREEN
-                elif grid[row][col] ==5:
-                    color = YELLOW
-                elif grid[row][col] ==6:
-                    color = PURPLE
-                elif grid[row][col] ==7:
-                    color = PINK
-                elif grid[row][col] ==8:
-                    color = ORANGE
             pygame.draw.rect(screen, color, [(margin + width) * col + margin,
                                                 (margin+ height) * row + margin,
                                                 width, height])
     pygame.display.update()
     pygame.display.flip()
-   
+    while(1):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                pos = pygame.mouse.get_pos()
+                i = pos[0]//(width +margin)
+                j = pos[1]//(height+margin)
+                #print((j,i))
+                if 0<= i < dim and 0<=j < dim:
+                    copyGrid[j][i] = 1
+        for row in range(dim):
+            for col in range(dim):
+                color = WHITE
+                if copyGrid[col][row] == 1:
+                    #print((col,row))
+                    # if grid[row][col] == -1:
+                    #     color = BLACK
+                    # elif grid[row][col] ==0:
+                    #     color = L_BLUE
+                    # elif grid[row][col] ==1:
+                    #     color = BLUE
+                    # elif grid[row][col] ==2:
+                    #     color = RED
+                    # elif grid[row][col] ==3:
+                    #     color = GREEN
+                    # elif grid[row][col] ==4:
+                    #     color = L_GREEN
+                    # elif grid[row][col] ==5:
+                    #     color = YELLOW
+                    # elif grid[row][col] ==6:
+                    #     color = PURPLE
+                    # elif grid[row][col] ==7:
+                    #     color = PINK
+                    # elif grid[row][col] ==8:
+                    #     color = ORANGE
+                    text = font.render(str(grid[col][row]), True, (0,0,0))
+                    #print(grid[row][col])
+                    rect = text.get_rect()
+                    #print(((margin+ height) * row + margin, (margin + width) * col + margin))
+                    #time.sleep(1)
+                    rect = pygame.Rect.move(rect, (margin+ height) * row + margin, (margin + width) * col + margin)
+                    screen.blit(text, rect)
+                    #print("in loop")
+                    pygame.display.update()
+                # else:
+                #     pygame.draw.rect(screen, color, [(margin + width) * col + margin,
+                #                                     (margin+ height) * row + margin,
+                #                                     width, height])
+        pygame.display.update()
+        pygame.display.flip()
    
    
    
