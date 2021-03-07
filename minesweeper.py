@@ -13,9 +13,12 @@ def generateMineField(dim, numMines):
         for column in range(dim):
             grid[row].append(0)
     copyGrid = copy.deepcopy(grid)
-    for i in range(numMines):
+    i = 0
+    while i < numMines:
         randX, randY = (random.randint(0, dim-1), random.randint(0, dim-1))
-        grid[randX][randY] = -1
+        if grid[randX][randY] != -1:
+            grid[randX][randY] = -1
+            i+=1
     for row in range(dim):
         for col in range(dim):
             if grid[row][col] == -1: 
@@ -93,9 +96,9 @@ def recursiveMineCheck(grid, dim, KB, x, y, markedMines, foundMines):
         KB[(x,y)][2], KB[(x,y)][3], KB[(x,y)][4] = countNeighborSquares(grid,KB, dim, x, y)
         #return markedMines, foundMines
         numNeighbors = 8
-        if x == 0:
+        if x == 0 or x== dim-1:
             numNeighbors -=3
-        if y == 0:
+        if y == 0 or x == dim -1:
             numNeighbors -=3
         if numNeighbors<3: 
             numNeighbors = 3
@@ -129,5 +132,5 @@ def markHiddenAsBombs(grid, dim, KB,i,j):
     for x,y in properNeighbors:
         if KB[(x,y)][0]== 0:
             KB[(x,y)][0] = -1
-grid = generateMineField(10, 5)
-basicAgent(grid, 10, 5)
+grid = generateMineField(2, 1)
+basicAgent(grid, 2, 1)
