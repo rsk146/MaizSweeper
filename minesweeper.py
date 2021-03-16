@@ -2,7 +2,7 @@ import pygame
 import numpy as np
 import itertools
 import random
-import setup
+#import setup
 import copy
 import pprint
 
@@ -38,12 +38,15 @@ def getNeighborMines(grid, i, j, dim):
         if grid[row][col] == -1:
             countMines+=1
     return countMines
+
 #                   -2       ,  -1       ,   0, 1   
 #KB: (row,col)->(found mine/marked mine/hidden/safe, surrounding mines from clue, safe squares around it, mines around it, hidden squares around it)
 def basicAgent(grid, dim, numMines):
     markedMines = 0
     foundMines = 0
     KBList = []
+    unvisited = list(itertools.product(range(dim), range(dim)))
+
     for row in range(dim):
         for col in range(dim):
             hiddenNeighbors = 8
@@ -56,13 +59,63 @@ def basicAgent(grid, dim, numMines):
             KBList.append(((row,col), [0, -1, -1, -1, hiddenNeighbors]))
     KB = dict(KBList)
     #pprint.pprint(KB)
+    length = dim**2
+    randCount = 0
     while (markedMines + foundMines != numMines):
-        randX, randY = (random.randint(0, dim-1), random.randint(0, dim-1))
-        markedMines, foundMines = recursiveMineCheck(grid, dim, KB, randX, randY, markedMines, foundMines)
+        markedMines, foundMines, length = checkBasic(grid, dim, unvisited, length, KB, markedMines, foundMines)
+        if(length == 0):
+            break
+        randX, randY = unvisited.pop(random.randint(0, length-1))
+        length -= 1
+        randCount += 1
+        print("Checking " + str((randX,randY)))
+        markedMines, foundMines, length = recursiveMineCheck(grid, dim, unvisited, length, KB, randX, randY, markedMines, foundMines)
     
     #pprint.pprint(KB)
     print("Score: " + str(float(markedMines)/numMines))
+    print("Guesses: " + str(randCount))
     
+def checkBasic(grid, dim, unvisited, uvLen, KB, markedMines, foundMines):
+    conclusion = True
+
+    while(conclusion):
+        conclusion = False
+        for x,y in KB.keys():
+            if KB[(x,y)][0] != 1:
+                continue
+
+            KB[(x,y)][2], KB[(x,y)][3], KB[(x,y)][4] = countNeighborSquares(grid, KB, dim, x, y)
+            if KB[(x,y)][4] == 0:
+                continue
+
+            numNeighbors = 8
+            if x == 0 or x== dim-1:
+                numNeighbors -=3
+            if y == 0 or x == dim -1:
+                numNeighbors -=3
+            if numNeighbors<3: 
+                numNeighbors = 3
+            #print((clue, revealedMines, x,y, KB[(x,y)]))
+            if KB[(x,y)][1] - KB[(x,y)][3] == KB[(x,y)][4]:
+                mark = markHiddenAsBombs(grid, dim, unvisited, KB, x, y)
+                markedMines += mark
+                uvLen -= mark
+                conclusion = True
+            elif numNeighbors- KB[(x,y)][1]- KB[(x,y)][2] == KB[(x,y)][4]:
+                #neighbors - clues - safeNeigh == hiddenNeigh
+                #print("in safe bombs func")
+                conclusion = True
+                neighbors = list(itertools.product(range(x-1, x+2), range(y-1, y+2)))
+                properNeighbors = list(filter(lambda x: (0<=x[0]< dim and 0<=x[1]<dim), neighbors))
+                properNeighbors.remove((x,y))
+                for i,j in properNeighbors:
+                    if KB[(i,j)][0] == 0:
+                        unvisited.remove((i,j))
+                        uvLen -=1
+                        markedMines, foundMines, uvLen = recursiveMineCheck(grid, dim, unvisited, uvLen, KB, i, j, markedMines, foundMines)
+
+    return markedMines, foundMines, uvLen
+
 
 def countNeighborSquares(grid, KB, dim, i, j):
     neighbors = list(itertools.product(range(i-1, i+2), range(j-1, j+2)))
@@ -84,10 +137,10 @@ def countNeighborSquares(grid, KB, dim, i, j):
     #print((safeSquares, bombSquares, hiddenSquares))
     return (safeSquares, bombSquares, hiddenSquares)
 
-def recursiveMineCheck(grid, dim, KB, x, y, markedMines, foundMines):
-    revealedMines = markedMines+foundMines
+def recursiveMineCheck(grid, dim, unvisited, uvLen, KB, x, y, markedMines, foundMines):
+    #revealedMines = markedMines+foundMines
     if KB[(x,y)][0] !=0:
-        return markedMines, foundMines
+        return markedMines, foundMines, uvLen
     clue = grid[x][y]
 
     if clue != -1:
@@ -103,10 +156,11 @@ def recursiveMineCheck(grid, dim, KB, x, y, markedMines, foundMines):
         if numNeighbors<3: 
             numNeighbors = 3
         #print((clue, revealedMines, x,y, KB[(x,y)]))
-        if clue - revealedMines == KB[(x,y)][4]:
-            markHiddenAsBombs(grid, dim, KB, x, y)
-            markedMines += clue
-            return markedMines, foundMines
+        if clue - KB[(x,y)][3] == KB[(x,y)][4]:
+            mark = markHiddenAsBombs(None, dim, unvisited, KB, x, y)
+            markedMines += mark
+            uvLen -= mark
+            return markedMines, foundMines, uvLen
         elif numNeighbors-clue-KB[(x,y)][2] == KB[(x,y)][4]:
             #neighbors - clues - safeNeigh == hiddenNeigh
             #print("in safe bombs func")
@@ -115,25 +169,34 @@ def recursiveMineCheck(grid, dim, KB, x, y, markedMines, foundMines):
             properNeighbors.remove((x,y))
             for i,j in properNeighbors:
                 if KB[(i,j)][0] == 0:
-                    markedMines, foundMines = recursiveMineCheck(grid, dim, KB, i, j, markedMines, foundMines)
+                    unvisited.remove((i,j))
+                    uvLen -=1
+                    markedMines, foundMines, uvLen = recursiveMineCheck(grid, dim, unvisited, uvLen, KB, i, j, markedMines, foundMines)
         else:
-            return markedMines, foundMines
+            return markedMines, foundMines, uvLen
     else:
         print("Oop, ya blew up. Anyway")
         foundMines +=1
         KB[(x,y)][0] = -2
-        return markedMines, foundMines
+        return markedMines, foundMines, uvLen
     
-    return markedMines, foundMines
+    return markedMines, foundMines, uvLen
 
-def markHiddenAsBombs(grid, dim, KB,i,j):
+def markHiddenAsBombs(grid, dim, unvisited, KB,i,j):
     #print("in hid bombs func")
+    markedBombs = 0
     neighbors = list(itertools.product(range(i-1, i+2), range(j-1, j+2)))
     properNeighbors = list(filter(lambda x: (0<=x[0]< dim and 0<=x[1]<dim), neighbors))
     properNeighbors.remove((i,j))
     for x,y in properNeighbors:
         if KB[(x,y)][0]== 0:
             KB[(x,y)][0] = -1
+            markedBombs += 1
+            unvisited.remove((x,y))
+    return markedBombs
 
-grid = generateMineField(10, 20)
-#basicAgent(grid, 2, 1)
+d = 10
+b = 50
+
+grid = generateMineField(d, b)
+basicAgent(grid, d, b)
