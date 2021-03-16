@@ -5,6 +5,7 @@ import random
 #import setup
 import copy
 import pprint
+import improvAgent as IA
 
 def generateMineField(dim, numMines):
     grid = []
@@ -74,6 +75,7 @@ def basicAgent(grid, dim, numMines):
     #pprint.pprint(KB)
     print("Score: " + str(float(markedMines)/numMines))
     print("Guesses: " + str(randCount))
+    return markedMines, numMines, randCount
     
 def checkBasic(grid, dim, unvisited, uvLen, KB, markedMines, foundMines):
     conclusion = True
@@ -195,8 +197,11 @@ def markHiddenAsBombs(grid, dim, unvisited, KB,i,j):
             unvisited.remove((x,y))
     return markedBombs
 
-d = 10
-b = 50
+d = 35
+b = 400
 
 grid = generateMineField(d, b)
-basicAgent(grid, d, b)
+mark, num, guesses = IA.improvedAgent(grid, d, b)
+
+if(num != b):
+    print("Oops, missed mines or false positives")
