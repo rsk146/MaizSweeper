@@ -40,6 +40,20 @@ def improvedAgent(grid, dim, numMines):
         #insert code to infer from our knowledge base, return some value to signify that KB has changed
         #continue; (if KB has changed)
         ######################################
+        check, randX, randY = guessAndCheck(dim, borderHidden, KB)
+        if(check == 1):
+            #Safe square
+            recursiveMineCheck2(grid, dim, unvisited, length, borderHidden, KB, randX, randY, markedMines, foundMines)
+            continue
+        elif(check == 2):
+            #Bomb square
+            KB[(randX,randY)][0] = -1
+            markedMines += 1
+            unvisited.remove((randX,randY))
+            borderHidden.discard((randX,randY))
+            continue
+        #Otherwise, we could not infer anything
+        
         randX, randY = unvisited.pop(random.randint(0, length-1))
         length -= 1
         randCount += 1
@@ -65,6 +79,11 @@ def improvedAgent(grid, dim, numMines):
     #Checks for any contradiction in the copied KB
     #If no contradiction, then this is inconclusive. Go back to LOOP 2 but see what happens if the square is known safe
     #If still no contradiction, then go back to LOOP 1 and pick the next square
+def guessAndCheck(dim, borHid, KB):
+
+
+    return 0,0,0
+
 
 def checkBasic2(grid, dim, unvisited, uvLen, borHid, KB, markedMines, foundMines):
     conclusion = True
