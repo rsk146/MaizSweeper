@@ -47,8 +47,8 @@ def manualGame(grid, dim, copyGrid):
                 return
             if event.type == pygame.MOUSEBUTTONDOWN:
                 pos = pygame.mouse.get_pos()
-                i = pos[0]//(width +margin)
-                j = pos[1]//(height+margin)
+                i = int(pos[0]//(width +margin))
+                j = int(pos[1]//(height+margin))
                 #print((j,i))
                 if 0<= i < dim and 0<=j < dim:
                     copyGrid[j][i] = 1

@@ -108,6 +108,7 @@ def recursiveMineCheck(grid, dim, KB, x, y, markedMines, foundMines):
             markedMines += clue
             return markedMines, foundMines
         elif numNeighbors-clue-KB[(x,y)][2] == KB[(x,y)][4]:
+            #neighbors - clues - safeNeigh == hiddenNeigh
             #print("in safe bombs func")
             neighbors = list(itertools.product(range(x-1, x+2), range(y-1, y+2)))
             properNeighbors = list(filter(lambda x: (0<=x[0]< dim and 0<=x[1]<dim), neighbors))
@@ -124,6 +125,7 @@ def recursiveMineCheck(grid, dim, KB, x, y, markedMines, foundMines):
         return markedMines, foundMines
     
     return markedMines, foundMines
+
 def markHiddenAsBombs(grid, dim, KB,i,j):
     #print("in hid bombs func")
     neighbors = list(itertools.product(range(i-1, i+2), range(j-1, j+2)))
@@ -132,5 +134,6 @@ def markHiddenAsBombs(grid, dim, KB,i,j):
     for x,y in properNeighbors:
         if KB[(x,y)][0]== 0:
             KB[(x,y)][0] = -1
-grid = generateMineField(2, 1)
-basicAgent(grid, 2, 1)
+
+grid = generateMineField(10, 20)
+#basicAgent(grid, 2, 1)
