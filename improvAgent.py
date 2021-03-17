@@ -77,8 +77,8 @@ def improvedAgent(grid, dim):
     #pprint.pprint(KB)
     #print(len(borderHidden))
     numMines = markedMines + foundMines
-    print("Score: " + str(float(markedMines)/numMines))
-    print("Guesses: " + str(randCount))
+    #print("Score: " + str(float(markedMines)/numMines))
+    #print("Guesses: " + str(randCount))
     if(not checkKB(grid, KB)):
         print("Marked mines do not match actual mines")
     return markedMines, numMines, randCount
@@ -291,7 +291,7 @@ def addBorderHidden(borHid, KB, dim, i, j):
             borHid.add((x,y))
     return None
 
-d = 20
+'''d = 20
 b = 100
 
 same = 0
@@ -300,7 +300,7 @@ worse = 0
 falseP = 0
 falseP2 = 0
 # for i in range(1):
-'''grid = [[ 0 , 0,  2, -1,  2,  1,  1,  2, -1, -1],
+grid = [[ 0 , 0,  2, -1,  2,  1,  1,  2, -1, -1],
  [ 1,  1,  2, -1,  3,  2, -1,  3,  5, -1],
  [-1,  1,  2,  3, -1,  2,  2, -1,  3, -1],
  [ 1,  1,  1, -1,  2,  1,  2,  2,  3,  1],
@@ -309,7 +309,7 @@ falseP2 = 0
  [ 0,  0,  0,  1, -1, -1,  3,  1,  1,  0],
  [ 1,  1,  0,  1,  2,  2,  2, -1,  1,  0],
  [-1,  2,  2,  1,  1,  0,  1,  1,  2,  1],
- [ 2, -1,  2, -1,  1,  0,  0,  0,  1, -1]]'''
+ [ 2, -1,  2, -1,  1,  0,  0,  0,  1, -1]]
     # grid = generateMineField(d, b)
     # mark2, num2, guesses2 = improvedAgent(grid, d)
     # if(num2 != b):
@@ -339,10 +339,13 @@ print("Same: " + str(same))
 print("Worse: " + str(worse))
 print("False Flags Basic: " + str(falseP))
 print("False Flags Improved: " + str(falseP2))
+'''
 def collectData(d, trials):
     density = []
     basic = []
     improv = []
+    basicGuesses = []
+    improvGuesses = []
     for j in range(1, 20):
         density.append(float(j)/20)
     for k in range(1, 20):
@@ -352,18 +355,24 @@ def collectData(d, trials):
         totNumbasic = 0
         markedImprov = 0
         totaNumImprov = 0
+        basicGuessesNum = 0
+        improvGuessesNum = 0
         for i in range(trials):
             grid = generateMineField(d, b)
             mark, num, guesses = basicAgent(grid, d, b)
-            mark2, num2, guesses2 = improvedAgent(grid, d, b)
+            mark2, num2, guesses2 = improvedAgent(grid, d)
             markedbasic += mark
             totNumbasic += num
             markedImprov += mark2
             totaNumImprov += num2
+            basicGuessesNum+=guesses
+            improvGuessesNum+=guesses2
         basicAverageScore = float(markedbasic)/totNumbasic
         improvAverageScore = float(markedImprov)/totaNumImprov
         basic.append(basicAverageScore)
         improv.append(improvAverageScore)
+        basicGuesses.append(basicGuessesNum)
+        improvGuesses.append(improvGuessesNum)
     with open("basic.txt", "w+") as f:
         for scores in basic:
             f.write(str(scores) + "\n")
@@ -371,6 +380,13 @@ def collectData(d, trials):
     with open("improved.txt", "w+") as g:
         for scores in improv:
             g.write(str(scores) + "\n")
+
+    with open("basicGuesses.txt", "w+") as h:
+        for guess in basicGuesses:
+            h.write(str(guess) + "\n")
+    with open("improvGuesses.txt", "w+") as e:
+        for guess in improvGuesses:
+            e.write(str(guess) + "\n")
 
     plt.figure(1)
     plt.plot(density, basic, color = "m", linewidth = 4.0)
@@ -394,7 +410,7 @@ def collectData(d, trials):
     plt.ylim(0, 1.0)
     plt.savefig("both.png")
 
-#collectData(20, 25)
+collectData(20, 25)
 
 
 # d = 30
