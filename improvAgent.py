@@ -40,33 +40,46 @@ def improvedAgent(grid, dim, numMines):
         #insert code to infer from our knowledge base, return some value to signify that KB has changed
         #continue; (if KB has changed)
         ######################################
-        check, randX, randY = guessAndCheck(dim, borderHidden, KB)
+        check, randX, randY = guessAndCheck(grid, dim, borderHidden, KB)
         if(check == 1):
             #Safe square
-            recursiveMineCheck2(grid, dim, unvisited, length, borderHidden, KB, randX, randY, markedMines, foundMines)
+            markedMines, foundMines, length = recursiveMineCheck2(grid, dim, unvisited, length, borderHidden, KB, randX, randY, markedMines, foundMines)
             continue
         elif(check == 2):
             #Bomb square
             KB[(randX,randY)][0] = -1
             markedMines += 1
             unvisited.remove((randX,randY))
+            length -= 1
             borderHidden.discard((randX,randY))
             continue
         #Otherwise, we could not infer anything
-        
+
         randX, randY = unvisited.pop(random.randint(0, length-1))
         length -= 1
         randCount += 1
-        print("Checking " + str((randX,randY)))
+        #print("Checking " + str((randX,randY)))
         #Change this function to also update some list of bordering hidden squares
         markedMines, foundMines, length = recursiveMineCheck2(grid, dim, unvisited, length, borderHidden, KB, randX, randY, markedMines, foundMines)
     
     #pprint.pprint(KB)
-    print(len(borderHidden))
+    #print(len(borderHidden))
     print("Score: " + str(float(markedMines)/numMines))
     print("Guesses: " + str(randCount))
     return markedMines, numMines, randCount
 
+'''
+[[ 0  0  1  1  1  0  0  0  0  0]
+ [ 0  0  1 -1  1  0  1  1  1  0]
+ [ 0  1  2  2  1  1  2 -1  1  0]
+ [ 0  2 -1  2  0  1 -1  2  1  0]
+ [ 0  2 -1  3  1  1  1  1  1  1]
+ [ 0  1  2 -1  1  0  0  0  1 -1]
+ [ 0  1  2  2  1  0  0  0  2  2]
+ [ 0  1 -1  2  1  0  0  0  1 -1]
+ [ 0  1  2 -1  1  0  0  0  1  1]
+ [ 0  0  1  1  1  0  0  0  0  0]]
+ '''
 
     #Some function that makes inferences
     #
@@ -79,10 +92,68 @@ def improvedAgent(grid, dim, numMines):
     #Checks for any contradiction in the copied KB
     #If no contradiction, then this is inconclusive. Go back to LOOP 2 but see what happens if the square is known safe
     #If still no contradiction, then go back to LOOP 1 and pick the next square
-def guessAndCheck(dim, borHid, KB):
+def guessAndCheck(grid, dim, borHid, KB):
 
-
+    for (x,y) in borHid:
+        for i in range(2):
+            copyKB = copy.deepcopy(KB)
+            if(i == 0):
+                #Assume this square is a bomb
+                copyKB[(x,y)][0] = -1
+                guessBomb = extendAssumption(grid, copyKB, dim)
+                if(guessBomb == False):
+                    return 1, x, y
+            else:
+                #Assume this square is safe
+                copyKB[(x,y)][0] = 2
+                guessSafe = extendAssumption(grid, copyKB, dim)
+                if(guessSafe == False):
+                    return 2, x, y
     return 0,0,0
+
+def extendAssumption(grid, KB, dim):
+    conclusion = True
+    while(conclusion):
+        conclusion = False
+        for x,y in KB.keys():
+            if KB[(x,y)][0] != 1:
+                continue
+
+            KB[(x,y)][2], KB[(x,y)][3], KB[(x,y)][4] = countNeighborSquares(grid, KB, dim, x, y)
+            if KB[(x,y)][4] == 0:
+                continue
+
+            numNeighbors = 8
+            if x == 0 or x== dim-1:
+                numNeighbors -=3
+            if y == 0 or x == dim -1:
+                numNeighbors -=3
+            if numNeighbors<3: 
+                numNeighbors = 3
+
+            if KB[(x,y)][1] - KB[(x,y)][3] < 0 or numNeighbors - KB[(x,y)][1] - KB[(x,y)][2] < 0:
+                return False
+
+            neighbors = list(itertools.product(range(x-1, x+2), range(y-1, y+2)))
+            properNeighbors = list(filter(lambda x: (0<=x[0]< dim and 0<=x[1]<dim), neighbors))
+            properNeighbors.remove((x,y))
+            
+            #print((clue, revealedMines, x,y, KB[(x,y)]))
+            
+            if KB[(x,y)][1] - KB[(x,y)][3] == KB[(x,y)][4]:
+                for i,j in properNeighbors:
+                    if KB[(i,j)][0] == 0:
+                        KB[(i,j)][0] = -1
+                conclusion = True
+            elif numNeighbors- KB[(x,y)][1]- KB[(x,y)][2] == KB[(x,y)][4]:
+                #neighbors - clues - safeNeigh == hiddenNeigh
+                #print("in safe bombs func")
+                conclusion = True
+                for i,j in properNeighbors:
+                    if KB[(i,j)][0] == 0:
+                        KB[(i,j)][0] = 2
+
+    return True
 
 
 def checkBasic2(grid, dim, unvisited, uvLen, borHid, KB, markedMines, foundMines):
@@ -170,7 +241,7 @@ def recursiveMineCheck2(grid, dim, unvisited, uvLen, borHid, KB, x, y, markedMin
         else:
             return markedMines, foundMines, uvLen
     else:
-        print("Oop, ya blew up. Anyway")
+        #print("Oop, ya blew up. Anyway")
         foundMines +=1
         KB[(x,y)][0] = -2
         return markedMines, foundMines, uvLen
@@ -195,11 +266,31 @@ def addBorderHidden(borHid, KB, dim, i, j):
             borHid.add((x,y))
     return None
 
-d = 20
-b = 10
+d = 30
+b = 200
 
-grid = generateMineField(d, b)
-mark, num, guesses = improvedAgent(grid, d, b)
+same = 0
+improved = 0
+worse = 0
+falseP = 0
 
-if(num != b):
-    print("Oops, missed mines or false positives")
+for i in range(20):
+    grid = generateMineField(d, b)
+    mark, num, guesses = basicAgent(grid, d, b)
+    mark2, num2, guesses2 = improvedAgent(grid, d, b)
+    if(mark == mark2):
+        same += 1
+    elif( mark < mark2):
+        improved += 1
+    else:
+        worse += 1
+
+    if(num != b):
+        falseP += 1
+        print("Oops, missed mines or false positives")
+
+print("\n\n")
+print("Improved: " + str(improved))
+print("Same: " + str(same))
+print("Worse: " + str(worse))
+print("False Flags: " + str(falseP))

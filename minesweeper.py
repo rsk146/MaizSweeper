@@ -24,7 +24,7 @@ def generateMineField(dim, numMines):
             if grid[row][col] == -1: 
                 continue
             grid[row][col] = getNeighborMines(grid, row, col, dim)
-    print(np.matrix(grid))
+    #print(np.matrix(grid))
     #uncomment if you want to play yourself
     #setup.manualGame(grid, dim, copyGrid)
     return grid
@@ -68,7 +68,7 @@ def basicAgent(grid, dim, numMines):
         randX, randY = unvisited.pop(random.randint(0, length-1))
         length -= 1
         randCount += 1
-        print("Checking " + str((randX,randY)))
+        #print("Checking " + str((randX,randY)))
         markedMines, foundMines, length = recursiveMineCheck(grid, dim, unvisited, length, KB, randX, randY, markedMines, foundMines)
     
     #pprint.pprint(KB)
@@ -131,7 +131,7 @@ def countNeighborSquares(grid, KB, dim, i, j):
         #print(str(KB[(row,col)][0]))
         if KB[(row,col)][0] == 0:
             hiddenSquares+=1
-        elif KB[(row,col)][0] == 1:
+        elif KB[(row,col)][0] == 1 or KB[(row,col)][0] == 2:
             safeSquares+=1
         else:
             bombSquares+=1
@@ -176,7 +176,7 @@ def recursiveMineCheck(grid, dim, unvisited, uvLen, KB, x, y, markedMines, found
         else:
             return markedMines, foundMines, uvLen
     else:
-        print("Oop, ya blew up. Anyway")
+        #print("Oop, ya blew up. Anyway")
         foundMines +=1
         KB[(x,y)][0] = -2
         return markedMines, foundMines, uvLen
