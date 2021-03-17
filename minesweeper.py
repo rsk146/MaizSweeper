@@ -12,7 +12,7 @@ def generateMineField(dim, numMines):
         grid.append([])
         for column in range(dim):
             grid[row].append(0)
-    copyGrid = copy.deepcopy(grid)
+    #copyGrid = copy.deepcopy(grid)
     i = 0
     while i < numMines:
         randX, randY = (random.randint(0, dim-1), random.randint(0, dim-1))
@@ -52,7 +52,7 @@ def basicAgent(grid, dim, numMines):
             hiddenNeighbors = 8
             if row == 0 or row == dim-1:
                 hiddenNeighbors -=3
-            if col == 0 or row == dim-1:
+            if col == 0 or col == dim-1:
                 hiddenNeighbors -=3
             if hiddenNeighbors < 3:
                 hiddenNeighbors = 3
@@ -92,7 +92,7 @@ def checkBasic(grid, dim, unvisited, uvLen, KB, markedMines, foundMines):
             numNeighbors = 8
             if x == 0 or x== dim-1:
                 numNeighbors -=3
-            if y == 0 or x == dim -1:
+            if y == 0 or y == dim -1:
                 numNeighbors -=3
             if numNeighbors<3: 
                 numNeighbors = 3
@@ -152,7 +152,7 @@ def recursiveMineCheck(grid, dim, unvisited, uvLen, KB, x, y, markedMines, found
         numNeighbors = 8
         if x == 0 or x== dim-1:
             numNeighbors -=3
-        if y == 0 or x == dim -1:
+        if y == 0 or y == dim -1:
             numNeighbors -=3
         if numNeighbors<3: 
             numNeighbors = 3
@@ -195,3 +195,12 @@ def markHiddenAsBombs(grid, dim, unvisited, KB,i,j):
             markedBombs += 1
             unvisited.remove((x,y))
     return markedBombs
+
+def checkKB(grid, KB):
+    for (x,y) in KB.keys():
+        if(KB[(x,y)][0] == -1 or KB[(x,y)][0] == -2):
+            if(grid[x][y] != -1):
+                return False
+        elif(KB[(x,y)][0] == 1 and grid[x][y] == -1):
+            return False
+    return True    

@@ -93,7 +93,43 @@ def manualGame(grid, dim, copyGrid):
         pygame.display.update()
         pygame.display.flip()
    
-   
+def displayGrid(grid, dim, KB):
+#print(copyGrid)
+    for row in range(dim):
+        for col in range(dim):
+            color = WHITE
+            pygame.draw.rect(screen, color, [(margin + width) * col + margin,
+                                                (margin+ height) * row + margin,
+                                                width, height])
+    pygame.display.update()
+    pygame.display.flip()
+    if(True):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+        for row in range(dim):
+            for col in range(dim):
+                if(KB[(row,col)][0] == 0):
+                    continue
+
+                color = WHITE
+                text = font.render(str(grid[row][col]), True, (0,0,0))
+                if KB[(row,col)][0] == -1:
+                    text = font.render("F", True, (0,0,0))
+                    #print(grid[row][col])
+                rect = text.get_rect()
+                    #print(((margin+ height) * row + margin, (margin + width) * col + margin))
+                    #time.sleep(1)
+                rect = pygame.Rect.move(rect, (margin+ height) * row + margin, (margin + width) * col + margin)
+                screen.blit(text, rect)
+                    #print("in loop")
+                pygame.display.update()
+                # else:
+                #     pygame.draw.rect(screen, color, [(margin + width) * col + margin,
+                #                                     (margin+ height) * row + margin,
+                #                                     width, height])
+        pygame.display.update()
+        pygame.display.flip()  
    
    
     '''Draw a number

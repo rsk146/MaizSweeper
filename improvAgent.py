@@ -2,13 +2,13 @@ import pygame
 #import numpy as np
 import itertools
 import random
-#import setup
 import copy
 import pprint
 from minesweeper import *
+#from setup import *
 
 
-def improvedAgent(grid, dim, numMines):
+def improvedAgent(grid, dim):
     markedMines = 0
     foundMines = 0
     KBList = []
@@ -32,6 +32,8 @@ def improvedAgent(grid, dim, numMines):
     borderHidden = set()
 
     while (length != 0):
+        #displayGrid(grid, dim, KB)
+        #input()
         #Change this function to also update some list of bordering hidden squares
         markedMines, foundMines, length = checkBasic2(grid, dim, unvisited, length, borderHidden, KB, markedMines, foundMines)
         if(length == 0):
@@ -43,7 +45,11 @@ def improvedAgent(grid, dim, numMines):
         check, randX, randY = guessAndCheck(grid, dim, borderHidden, KB)
         if(check == 1):
             #Safe square
+            temp = foundMines
             markedMines, foundMines, length = recursiveMineCheck2(grid, dim, unvisited, length, borderHidden, KB, randX, randY, markedMines, foundMines)
+            if(temp != foundMines):
+                print("Bad Assumption")
+                input()
             continue
         elif(check == 2):
             #Bomb square
@@ -55,7 +61,12 @@ def improvedAgent(grid, dim, numMines):
             continue
         #Otherwise, we could not infer anything
 
-        randX, randY = unvisited.pop(random.randint(0, length-1))
+        # if(randCount == 0):
+        #     randX, randY = 6,1
+        #     unvisited.remove((6,1))
+        # else:
+        randX,randY = unvisited.pop(random.randint(0, length-1))
+        
         length -= 1
         randCount += 1
         #print("Checking " + str((randX,randY)))
@@ -64,8 +75,11 @@ def improvedAgent(grid, dim, numMines):
     
     #pprint.pprint(KB)
     #print(len(borderHidden))
+    numMines = markedMines + foundMines
     print("Score: " + str(float(markedMines)/numMines))
     print("Guesses: " + str(randCount))
+    if(not checkKB(grid, KB)):
+        print("Marked mines do not match actual mines")
     return markedMines, numMines, randCount
 
 '''
@@ -80,6 +94,7 @@ def improvedAgent(grid, dim, numMines):
  [ 0  1  2 -1  1  0  0  0  1  1]
  [ 0  0  1  1  1  0  0  0  0  0]]
  '''
+
 
     #Some function that makes inferences
     #
@@ -120,19 +135,21 @@ def extendAssumption(grid, KB, dim):
                 continue
 
             KB[(x,y)][2], KB[(x,y)][3], KB[(x,y)][4] = countNeighborSquares(grid, KB, dim, x, y)
-            if KB[(x,y)][4] == 0:
-                continue
+            
 
             numNeighbors = 8
             if x == 0 or x== dim-1:
                 numNeighbors -=3
-            if y == 0 or x == dim -1:
+            if y == 0 or y == dim -1:
                 numNeighbors -=3
             if numNeighbors<3: 
                 numNeighbors = 3
 
             if KB[(x,y)][1] - KB[(x,y)][3] < 0 or numNeighbors - KB[(x,y)][1] - KB[(x,y)][2] < 0:
                 return False
+
+            if KB[(x,y)][4] == 0:
+                continue
 
             neighbors = list(itertools.product(range(x-1, x+2), range(y-1, y+2)))
             properNeighbors = list(filter(lambda x: (0<=x[0]< dim and 0<=x[1]<dim), neighbors))
@@ -171,7 +188,7 @@ def checkBasic2(grid, dim, unvisited, uvLen, borHid, KB, markedMines, foundMines
             numNeighbors = 8
             if x == 0 or x== dim-1:
                 numNeighbors -=3
-            if y == 0 or x == dim -1:
+            if y == 0 or y == dim -1:
                 numNeighbors -=3
             if numNeighbors<3: 
                 numNeighbors = 3
@@ -199,6 +216,7 @@ def checkBasic2(grid, dim, unvisited, uvLen, borHid, KB, markedMines, foundMines
     return markedMines, foundMines, uvLen
 
 def recursiveMineCheck2(grid, dim, unvisited, uvLen, borHid, KB, x, y, markedMines, foundMines):
+    
     #revealedMines = markedMines+foundMines
     #print(len(borHid))
     if KB[(x,y)][0] !=0:
@@ -208,14 +226,17 @@ def recursiveMineCheck2(grid, dim, unvisited, uvLen, borHid, KB, x, y, markedMin
     borHid.discard((x,y))
     if clue != -1:
         KB[(x,y)][0] = 1
+        #displayGrid(grid, dim, KB)
+        #input()
         KB[(x,y)][1] = clue
         KB[(x,y)][2], KB[(x,y)][3], KB[(x,y)][4] = countNeighborSquares(grid,KB, dim, x, y)
         addBorderHidden(borHid, KB, dim, x, y)
+        #Add check for hidden == 0, conitnue
         #return markedMines, foundMines
         numNeighbors = 8
         if x == 0 or x== dim-1:
             numNeighbors -=3
-        if y == 0 or x == dim -1:
+        if y == 0 or y == dim -1:
             numNeighbors -=3
         if numNeighbors<3: 
             numNeighbors = 3
@@ -232,6 +253,7 @@ def recursiveMineCheck2(grid, dim, unvisited, uvLen, borHid, KB, x, y, markedMin
             removeHiddenFromBorder(borHid, KB, dim, x, y)
             neighbors = list(itertools.product(range(x-1, x+2), range(y-1, y+2)))
             properNeighbors = list(filter(lambda x: (0<=x[0]< dim and 0<=x[1]<dim), neighbors))
+            
             properNeighbors.remove((x,y))
             for i,j in properNeighbors:
                 if KB[(i,j)][0] == 0:
@@ -244,6 +266,8 @@ def recursiveMineCheck2(grid, dim, unvisited, uvLen, borHid, KB, x, y, markedMin
         #print("Oop, ya blew up. Anyway")
         foundMines +=1
         KB[(x,y)][0] = -2
+        #displayGrid(grid, dim, KB)
+        #input()
         return markedMines, foundMines, uvLen
     
     return markedMines, foundMines, uvLen
@@ -266,18 +290,34 @@ def addBorderHidden(borHid, KB, dim, i, j):
             borHid.add((x,y))
     return None
 
-d = 30
-b = 200
+d = 20
+b = 100
 
 same = 0
 improved = 0
 worse = 0
 falseP = 0
-
+falseP2 = 0
+# for i in range(1):
+'''grid = [[ 0 , 0,  2, -1,  2,  1,  1,  2, -1, -1],
+ [ 1,  1,  2, -1,  3,  2, -1,  3,  5, -1],
+ [-1,  1,  2,  3, -1,  2,  2, -1,  3, -1],
+ [ 1,  1,  1, -1,  2,  1,  2,  2,  3,  1],
+ [ 0,  0,  1,  1,  2,  1,  2, -1,  1,  0],
+ [ 0,  0,  0,  1,  3, -1,  3,  1,  1,  0],
+ [ 0,  0,  0,  1, -1, -1,  3,  1,  1,  0],
+ [ 1,  1,  0,  1,  2,  2,  2, -1,  1,  0],
+ [-1,  2,  2,  1,  1,  0,  1,  1,  2,  1],
+ [ 2, -1,  2, -1,  1,  0,  0,  0,  1, -1]]'''
+    # grid = generateMineField(d, b)
+    # mark2, num2, guesses2 = improvedAgent(grid, d)
+    # if(num2 != b):
+    #     falseP += 1
+    #     print("Oops, missed mines or false positives")
 for i in range(20):
     grid = generateMineField(d, b)
     mark, num, guesses = basicAgent(grid, d, b)
-    mark2, num2, guesses2 = improvedAgent(grid, d, b)
+    mark2, num2, guesses2 = improvedAgent(grid, d)
     if(mark == mark2):
         same += 1
     elif( mark < mark2):
@@ -287,10 +327,14 @@ for i in range(20):
 
     if(num != b):
         falseP += 1
-        print("Oops, missed mines or false positives")
+        print("Oops, missed mines or false positives in Basic")
+    if(num2 != b):
+        falseP2 += 1
+        print("Oops, missed mines or false positives in Basic")
 
 print("\n\n")
 print("Improved: " + str(improved))
 print("Same: " + str(same))
 print("Worse: " + str(worse))
-print("False Flags: " + str(falseP))
+print("False Flags Basic: " + str(falseP))
+print("False Flags Improved: " + str(falseP2))
