@@ -41,7 +41,7 @@ def getNeighborMines(grid, i, j, dim):
 
 #                   -2       ,  -1       ,   0, 1   
 #KB: (row,col)->(found mine/marked mine/hidden/safe, surrounding mines from clue, safe squares around it, mines around it, hidden squares around it)
-def basicAgent(grid, dim, numMines):
+def basicAgent(grid, dim):
     markedMines = 0
     foundMines = 0
     KBList = []
@@ -61,7 +61,7 @@ def basicAgent(grid, dim, numMines):
     #pprint.pprint(KB)
     length = dim**2
     randCount = 0
-    while (markedMines + foundMines != numMines):
+    while (length != 0):
         markedMines, foundMines, length = checkBasic(grid, dim, unvisited, length, KB, markedMines, foundMines)
         if(length == 0):
             break
@@ -74,6 +74,7 @@ def basicAgent(grid, dim, numMines):
     #pprint.pprint(KB)
     #print("Score: " + str(float(markedMines)/numMines))
     #print("Guesses: " + str(randCount))
+    numMines = markedMines + foundMines
     return markedMines, numMines, randCount
     
 def checkBasic(grid, dim, unvisited, uvLen, KB, markedMines, foundMines):

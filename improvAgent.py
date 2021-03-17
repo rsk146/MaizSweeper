@@ -4,9 +4,8 @@ import itertools
 import random
 import copy
 import pprint
-from minesweeper import *
+from basicAgent import *
 #from setup import *
-import matplotlib.pyplot as plt
 
 
 def improvedAgent(grid, dim):
@@ -50,7 +49,7 @@ def improvedAgent(grid, dim):
             markedMines, foundMines, length = recursiveMineCheck2(grid, dim, unvisited, length, borderHidden, KB, randX, randY, markedMines, foundMines)
             if(temp != foundMines):
                 print("Bad Assumption")
-                input()
+                #input()
             continue
         elif(check == 2):
             #Bomb square
@@ -290,138 +289,3 @@ def addBorderHidden(borHid, KB, dim, i, j):
         if KB[(x,y)][0]== 0:
             borHid.add((x,y))
     return None
-
-d = 20
-b = 100
-
-same = 0
-improved = 0
-worse = 0
-falseP = 0
-falseP2 = 0
-# for i in range(1):
-'''grid = [[ 0 , 0,  2, -1,  2,  1,  1,  2, -1, -1],
- [ 1,  1,  2, -1,  3,  2, -1,  3,  5, -1],
- [-1,  1,  2,  3, -1,  2,  2, -1,  3, -1],
- [ 1,  1,  1, -1,  2,  1,  2,  2,  3,  1],
- [ 0,  0,  1,  1,  2,  1,  2, -1,  1,  0],
- [ 0,  0,  0,  1,  3, -1,  3,  1,  1,  0],
- [ 0,  0,  0,  1, -1, -1,  3,  1,  1,  0],
- [ 1,  1,  0,  1,  2,  2,  2, -1,  1,  0],
- [-1,  2,  2,  1,  1,  0,  1,  1,  2,  1],
- [ 2, -1,  2, -1,  1,  0,  0,  0,  1, -1]]'''
-    # grid = generateMineField(d, b)
-    # mark2, num2, guesses2 = improvedAgent(grid, d)
-    # if(num2 != b):
-    #     falseP += 1
-    #     print("Oops, missed mines or false positives")
-for i in range(20):
-    grid = generateMineField(d, b)
-    mark, num, guesses = basicAgent(grid, d, b)
-    mark2, num2, guesses2 = improvedAgent(grid, d)
-    if(mark == mark2):
-        same += 1
-    elif( mark < mark2):
-        improved += 1
-    else:
-        worse += 1
-
-    if(num != b):
-        falseP += 1
-        print("Oops, missed mines or false positives in Basic")
-    if(num2 != b):
-        falseP2 += 1
-        print("Oops, missed mines or false positives in Basic")
-
-print("\n\n")
-print("Improved: " + str(improved))
-print("Same: " + str(same))
-print("Worse: " + str(worse))
-print("False Flags Basic: " + str(falseP))
-print("False Flags Improved: " + str(falseP2))
-def collectData(d, trials):
-    density = []
-    basic = []
-    improv = []
-    for j in range(1, 20):
-        density.append(float(j)/20)
-    for k in range(1, 20):
-        b = int(d*d * float(k)/20)
-        print(str(b))
-        markedbasic = 0
-        totNumbasic = 0
-        markedImprov = 0
-        totaNumImprov = 0
-        for i in range(trials):
-            grid = generateMineField(d, b)
-            mark, num, guesses = basicAgent(grid, d, b)
-            mark2, num2, guesses2 = improvedAgent(grid, d, b)
-            markedbasic += mark
-            totNumbasic += num
-            markedImprov += mark2
-            totaNumImprov += num2
-        basicAverageScore = float(markedbasic)/totNumbasic
-        improvAverageScore = float(markedImprov)/totaNumImprov
-        basic.append(basicAverageScore)
-        improv.append(improvAverageScore)
-    with open("basic.txt", "w+") as f:
-        for scores in basic:
-            f.write(str(scores) + "\n")
-
-    with open("improved.txt", "w+") as g:
-        for scores in improv:
-            g.write(str(scores) + "\n")
-
-    plt.figure(1)
-    plt.plot(density, basic, color = "m", linewidth = 4.0)
-    plt.xlabel("Bomb Density")
-    plt.ylabel("Average Final Score")
-    plt.title("Basic Agent Average Final Score vs Bomb Density")
-    plt.savefig("basic.png")
-    plt.figure(2)
-    plt.plot(density, improv, color = 'b', linewidth = 4.0)
-    plt.xlabel("Bomb Density")
-    plt.ylabel("Average Final Score")
-    plt.title("Improved Agent Average Final Score vs Bomb Density")
-    plt.savefig("improved.png")
-    plt.figure(3)
-    plt.plot(density, basic, color = "m", linewidth = 4.0, label = "Basic")
-    plt.plot(density, improv, color = 'b', linewidth = 4.0, label = "Improved")
-    plt.xlabel("Bomb Density")
-    plt.ylabel("Average Final Score")
-    plt.title("Average Scores for Strategies")
-    plt.legend(loc = "upper right")
-    plt.ylim(0, 1.0)
-    plt.savefig("both.png")
-
-#collectData(20, 25)
-
-
-# d = 30
-# b = 200
-
-# same = 0
-# improved = 0
-# worse = 0
-# falseP = 0
-
-# for i in range(20):
-#     grid = generateMineField(d, b)
-#     mark, num, guesses = basicAgent(grid, d, b)
-#     mark2, num2, guesses2 = improvedAgent(grid, d, b)
-#     if(mark == mark2):
-#         same += 1
-#     elif( mark < mark2):
-#         improved += 1
-#     else:
-#         worse += 1
-
-#     if(num != b):
-#         falseP += 1
-#         print("Oops, missed mines or false positives")
-
-# print("\n\n")
-# print("Improved: " + str(improved))
-# print("Same: " + str(same))
-# print("Worse: " + str(worse))
-# print("False Flags: " + str(falseP))

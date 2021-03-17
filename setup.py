@@ -56,27 +56,6 @@ def manualGame(grid, dim, copyGrid):
             for col in range(dim):
                 color = WHITE
                 if copyGrid[col][row] == 1:
-                    #print((col,row))
-                    # if grid[row][col] == -1:
-                    #     color = BLACK
-                    # elif grid[row][col] ==0:
-                    #     color = L_BLUE
-                    # elif grid[row][col] ==1:
-                    #     color = BLUE
-                    # elif grid[row][col] ==2:
-                    #     color = RED
-                    # elif grid[row][col] ==3:
-                    #     color = GREEN
-                    # elif grid[row][col] ==4:
-                    #     color = L_GREEN
-                    # elif grid[row][col] ==5:
-                    #     color = YELLOW
-                    # elif grid[row][col] ==6:
-                    #     color = PURPLE
-                    # elif grid[row][col] ==7:
-                    #     color = PINK
-                    # elif grid[row][col] ==8:
-                    #     color = ORANGE
                     text = font.render(str(grid[col][row]), True, (0,0,0))
                     #print(grid[row][col])
                     rect = text.get_rect()
