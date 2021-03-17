@@ -72,8 +72,8 @@ def basicAgent(grid, dim, numMines):
         markedMines, foundMines, length = recursiveMineCheck(grid, dim, unvisited, length, KB, randX, randY, markedMines, foundMines)
     
     #pprint.pprint(KB)
-    print("Score: " + str(float(markedMines)/numMines))
-    print("Guesses: " + str(randCount))
+    #print("Score: " + str(float(markedMines)/numMines))
+    #print("Guesses: " + str(randCount))
     return markedMines, numMines, randCount
     
 def checkBasic(grid, dim, unvisited, uvLen, KB, markedMines, foundMines):
