@@ -6,6 +6,7 @@ import random
 import copy
 import pprint
 from minesweeper import *
+import matplotlib.pyplot as plt
 
 
 def improvedAgent(grid, dim, numMines):
@@ -266,31 +267,77 @@ def addBorderHidden(borHid, KB, dim, i, j):
             borHid.add((x,y))
     return None
 
-d = 30
-b = 200
+def collectData(d, trials):
+    density = []
+    basic = []
+    improv = []
+    for j in range(1, 20):
+        density.append(float(j)/20)
+    for b in range(20, 400, 20):
+        markedbasic = 0
+        totNumbasic = 0
+        markedImprov = 0
+        totaNumImprov = 0
+        for i in range(trials):
+            grid = generateMineField(d, b)
+            mark, num, guesses = basicAgent(grid, d, b)
+            mark2, num2, guesses2 = improvedAgent(grid, d, b)
+            markedbasic += mark
+            totNumbasic += num
+            markedImprov += mark2
+            totaNumImprov += num2
+        basicAverageScore = float(markedbasic)/totNumbasic
+        improvAverageScore = float(markedImprov)/totaNumImprov
+        basic.append(basicAverageScore)
+        improv.append(improvAverageScore)
+    with open("basic.txt", "w+") as f:
+        for scores in basic:
+            f.write("%s\n", %scores)
 
-same = 0
-improved = 0
-worse = 0
-falseP = 0
+    with open("improved.txt", "w+") as g:
+        for scores in improv:
+            g.write("%s\n", %scores)
+    plt.figure(1)
+    plt.plot(density, basic, color = "m", linewidth = 4.0)
+    plt.xlabel("Bomb Density")
+    plt.ylabel("Average Final Score")
+    plt.title("Basic Agent Average Final Score vs Bomb Density")
+    plt.savefig("basic.png")
+    plt.figure(2)
+    plt.plot(density, imrpov, color = 'b', linewidth = 4.0)
+    plt.xlabel("Bomb Density")
+    plt.ylabel("Average Final Score")
+    plt.title("Improved Agent Average Final Score vs Bomb Density")
+    plt.savefig("improved.png")
 
-for i in range(20):
-    grid = generateMineField(d, b)
-    mark, num, guesses = basicAgent(grid, d, b)
-    mark2, num2, guesses2 = improvedAgent(grid, d, b)
-    if(mark == mark2):
-        same += 1
-    elif( mark < mark2):
-        improved += 1
-    else:
-        worse += 1
+collectData(20, 3)
 
-    if(num != b):
-        falseP += 1
-        print("Oops, missed mines or false positives")
 
-print("\n\n")
-print("Improved: " + str(improved))
-print("Same: " + str(same))
-print("Worse: " + str(worse))
-print("False Flags: " + str(falseP))
+# d = 30
+# b = 200
+
+# same = 0
+# improved = 0
+# worse = 0
+# falseP = 0
+
+# for i in range(20):
+#     grid = generateMineField(d, b)
+#     mark, num, guesses = basicAgent(grid, d, b)
+#     mark2, num2, guesses2 = improvedAgent(grid, d, b)
+#     if(mark == mark2):
+#         same += 1
+#     elif( mark < mark2):
+#         improved += 1
+#     else:
+#         worse += 1
+
+#     if(num != b):
+#         falseP += 1
+#         print("Oops, missed mines or false positives")
+
+# print("\n\n")
+# print("Improved: " + str(improved))
+# print("Same: " + str(same))
+# print("Worse: " + str(worse))
+# print("False Flags: " + str(falseP))
