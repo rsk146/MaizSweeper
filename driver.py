@@ -2,6 +2,9 @@ import basicAgent as ba
 import improvAgent as ia
 import dataCollector as dc
 
+#This is the main function that we run
+#Sample code that we used for testing is shown below as comments
+#Running data collector is uncommented right now
 
 d = 20
 b = 100
@@ -11,6 +14,10 @@ improved = 0
 worse = 0
 falseP = 0
 falseP2 = 0
+
+
+dc.collectData(10, 20)
+
 # for i in range(1):
 '''grid = [[ 0 , 0,  2, -1,  2,  1,  1,  2, -1, -1],
  [ 1,  1,  2, -1,  3,  2, -1,  3,  5, -1],
@@ -53,8 +60,6 @@ falseP2 = 0
 # print("False Flags Basic: " + str(falseP))
 # print("False Flags Improved: " + str(falseP2))
 
-dc.collectData(10, 20)
-
 # d = 30
 # b = 200
 
@@ -83,3 +88,4 @@ dc.collectData(10, 20)
 # print("Same: " + str(same))
 # print("Worse: " + str(worse))
 # print("False Flags: " + str(falseP))
+

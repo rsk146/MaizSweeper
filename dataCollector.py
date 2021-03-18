@@ -3,6 +3,7 @@ from improvAgent import *
 import matplotlib.pyplot as plt
 
 def collectData(d, trials):
+    #Set-up data structures
     density = []
     basic = []
     improv = []
@@ -10,7 +11,9 @@ def collectData(d, trials):
     improvGuesses = []
     for j in range(1, 20):
         density.append(float(j)/20)
+
     for k in range(1, 20):
+        #Run trials for each density
         b = int(d*d * float(k)/20)
         print(str(b))
         markedbasic = 0
@@ -19,7 +22,9 @@ def collectData(d, trials):
         totaNumImprov = 0
         basicGuessesNum = 0
         improvGuessesNum = 0
+
         for i in range(trials):
+            #Run trial and record data
             grid = generateMineField(d, b)
             mark, num, guesses = basicAgent(grid, d)
             mark2, num2, guesses2 = improvedAgent(grid, d)
@@ -29,12 +34,16 @@ def collectData(d, trials):
             totaNumImprov += num2
             basicGuessesNum+=guesses
             improvGuessesNum+=guesses2
+
+        #Calculate Scores and store    
         basicAverageScore = float(markedbasic)/totNumbasic
         improvAverageScore = float(markedImprov)/totaNumImprov
         basic.append(basicAverageScore)
         improv.append(improvAverageScore)
         basicGuesses.append(basicGuessesNum)
         improvGuesses.append(improvGuessesNum)
+
+    #Store our collected data into output files
     with open("basic.txt", "w+") as f:
         for scores in basic:
             f.write(str(scores) + "\n")
@@ -50,18 +59,22 @@ def collectData(d, trials):
         for guess in improvGuesses:
             e.write(str(guess) + "\n")
 
+    #Plot everything with proper axes
+    #Save each graph to a file
     plt.figure(1)
     plt.plot(density, basic, color = "m", linewidth = 4.0)
     plt.xlabel("Bomb Density")
     plt.ylabel("Average Final Score")
     plt.title("Basic Agent Average Final Score vs Bomb Density")
     plt.savefig("basic.png")
+
     plt.figure(2)
     plt.plot(density, improv, color = 'b', linewidth = 4.0)
     plt.xlabel("Bomb Density")
     plt.ylabel("Average Final Score")
     plt.title("Improved Agent Average Final Score vs Bomb Density")
     plt.savefig("improved.png")
+    
     plt.figure(3)
     plt.plot(density, basic, color = "m", linewidth = 4.0, label = "Basic")
     plt.plot(density, improv, color = 'b', linewidth = 4.0, label = "Improved")
