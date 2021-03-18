@@ -1,10 +1,11 @@
 import basicAgent as ba
 import improvAgent as ia
+import betterImprovAgent as bia
 import dataCollector as dc
 
 #This is the main function that we run
-#Sample code that we used for testing is shown below as comments
-#Running data collector is uncommented right now
+#Sample code that we used for testing is shown below as comments (may not work since file structure/imports are changed)
+#Running data collector works, and current code works
 
 d = 20
 b = 100
@@ -15,8 +16,17 @@ worse = 0
 falseP = 0
 falseP2 = 0
 
+grid = ba.generateMineField(d,b)
+mark, num, guesses = bia.improvedAgentBetter(grid, d, b)
+mark2, num2, guesses2 = ia.improvedAgent(grid, d)
 
-dc.collectData(10, 20)
+print("Mark :" + str(mark))
+print("Guesses :" + str(guesses))
+
+print("Mark 2:" + str(mark2))
+print("Guesses 2:" + str(guesses2))
+
+######dc.collectData(10, 20)##########
 
 # for i in range(1):
 '''grid = [[ 0 , 0,  2, -1,  2,  1,  1,  2, -1, -1],
