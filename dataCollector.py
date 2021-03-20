@@ -145,4 +145,4 @@ def collectDataTwo(d, trials):
     plt.ylim(0, 1.0)
     plt.savefig("betterimprov.png")
 
-collectDataTwo(20, 25)    
+#collectDataTwo(20, 25)    
