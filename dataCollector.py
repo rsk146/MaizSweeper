@@ -1,5 +1,6 @@
 from basicAgent import *
 from improvAgent import *
+from betterImprovAgent import *
 import matplotlib.pyplot as plt
 
 def collectData(d, trials):
@@ -84,3 +85,64 @@ def collectData(d, trials):
     plt.legend(loc = "upper right")
     plt.ylim(0, 1.0)
     plt.savefig("both.png")
+
+def collectDataTwo(d, trials):
+    #Set up data structures
+    density = []
+    improv = []
+    better = []
+    betterGuesses = []
+    for j in range(1, 20):
+        density.append(float(j)/20)
+    #get improved data from previous run
+    with open("improved.txt", "r") as f:
+        improv = f.readlines()
+    improv = [float(x.strip()) for x in improv]
+    for k in range(1, 20):
+        #Run trials for each density
+        b = int(d*d * float(k)/20)
+        print(str(b))
+        markedBetter = 0
+        totNumBetter = 0
+        betterGuessesNum = 0
+
+        for i in range(trials):
+            #run trials and record data
+            grid = generateMineField(d, b)
+            mark, num, guesses = improvedAgentBetter(grid, d, b)
+            markedBetter += mark
+            totNumBetter += num
+            betterGuessesNum += guesses
+        
+        #calculate scores and store
+        betterAverageScore = float(markedBetter)/totNumBetter
+        better.append(betterAverageScore)
+        betterGuesses.append(betterGuessesNum)
+    
+    #store data into output files for future use
+    with open("better.txt", "w+") as g:
+        for scores in better:
+            f.write(str(scores) + "\n")
+    with open("betterGuesses.txt", "w+") as h:
+        for guess in betterGuesses:
+            h.write(str(guess) + "\n")
+    
+    #Plot everythign and save each graph to file
+    plt.figure(1)
+    plt.plot(density, better, color = "r", linewidth = 4.0)
+    plt.xlabel("Bomb Density")
+    plt.ylabel("Average Final Score")
+    plt.title("Better Decisions Agent Average Final Score vs Bomb Density")
+    plt.savefig("better.png")
+
+    plt.figure(2)
+    plt.plot(density, improv, color = 'b', linewidth = 4.0)
+    plt.plot(density, better, color = 'r', linewidth = 4.0)
+    plt.xlabel("Bomb Density")
+    plt.ylabel("Average Final Score")
+    plt.title("Average Scores for Better Decisions Agent and Improved Agents")
+    plt.legend(loc = 'upper right')
+    plt.ylim(0, 1.0)
+    plt.savefig("betterimprov.png")
+
+collectDataTwo(20, 25)    
